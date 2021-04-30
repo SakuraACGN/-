@@ -1,0 +1,221 @@
+import pygame
+import sys
+import requests
+import time
+##############################################################################
+# c:\windows\fonts 查看已安装字体
+def Put_Out(m,n):
+    n_1 = word_type.render(b[-i][m * l:((m + 1) * l)], True, word_color)
+    h = int(n * 1.5 * size)
+    screen.blit(n_1, (0, h))
+    return(m+1 ,n+1)
+
+def Put_Out_2(m,n,v,Tick):
+    n_1 = word_type.render(b[-i-1][m * l:((m + 1) * l)], True, word_color)
+    h = int(n * 1.5 * size+v*Tick)
+    screen.blit(n_1, (0, h))
+    return(m+1 ,n+1)
+
+def move(i,n,v,Tick):
+    m = 0
+    w_n = len(b[-i-1])
+    if w_n < l:
+        m, n = Put_Out_2(m, n, v, Tick)
+    elif w_n < 2 * l:
+        m, n = Put_Out_2(m, n, v, Tick)
+        m, n = Put_Out_2(m, n, v, Tick)
+    else:
+        m, n = Put_Out_2(m, n, v, Tick)
+        m, n = Put_Out_2(m, n, v, Tick)
+        m, n = Put_Out_2(m, n, v, Tick)
+    return (i+1,n+1)
+
+def judge (i , n):
+    m = 0
+    w_n = len(b[-i])
+    if w_n < l:
+        m, n = Put_Out(m, n)
+    elif w_n < 2 * l:
+        m, n = Put_Out(m, n)
+        m, n = Put_Out(m, n)
+    else:
+        m, n = Put_Out(m, n)
+        m, n = Put_Out(m, n)
+        m, n = Put_Out(m, n)
+    return (i+1,n+1)
+###############################################################################
+def edge_judge(a, b, c):
+    while a > b:
+        return int(input(c))
+    else:
+        return a
+
+headers={
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'Origin': 'https://live.bilibili.com',
+    'Referer': 'https://live.bilibili.com/5225369?spm_id_from=333.334.b_62696c695f6c697665.5',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.119 Safari/537.36',
+}
+new =''
+av=input('room number: ')
+data={
+    'roomid': av,
+    'csrf_token': 'fa56950667934cf5a3479ca94abc1f9a',
+    'csrf': 'fa56950667934cf5a3479ca94abc1f9a',
+    'visit_id': '',
+}
+
+url='https://api.live.bilibili.com/ajax/msg'
+j=0
+while True:
+    try:
+        size=int(input("选择字体大小(0~64)："))
+        size=edge_judge(size, 64, "选择字体大小(0~64)：")
+        break
+    except :
+        j=0
+while True:
+    try:
+        s_x=int(input('选择窗口宽: '))
+        s_x=edge_judge(s_x,9999,'选择窗口宽: ')
+        break
+    except:
+        j=0
+while True:
+    try:
+        s_y=int(input('选择窗口高: '))
+        s_y=edge_judge(s_y,9999,'选择窗口高: ')
+        break
+    except:
+        j=0
+print("颜色调节仅支持红绿蓝的深度（0~255）")
+print("例如需要青色则 红=0 绿=255 蓝=255")
+while True:
+    try:
+        word_color_r = int(input("字体颜色红："))
+        word_color_r=edge_judge(word_color_r, 255, "字体颜色红：")
+        break
+    except :
+        j=0
+while True:
+    try:
+        word_color_g = int(input("字体颜色绿："))
+        word_color_g= edge_judge(word_color_g, 255, "字体颜色绿：")
+        break
+    except :
+        j=0
+while True:
+    try:
+        word_color_b = int(input("字体颜色蓝："))
+        word_color_b=edge_judge(word_color_b,255,"字体颜色蓝：")
+        break
+    except :
+        j=0
+word_color = [word_color_r,word_color_g,word_color_b]
+while True:
+    try:
+        bg_color_r = int(input('背景颜色红：'))
+        bg_color_r=edge_judge(bg_color_r,255,'背景颜色红：')
+        break
+    except :
+        j=0
+while True:
+    try:
+        bg_color_g = int(input('背景颜色绿：'))
+        bg_color_g = edge_judge(bg_color_g,255,'背景颜色绿：')
+        break
+    except :
+        j=0
+while True:
+    try:
+        bg_color_b = int(input('背景颜色蓝：'))
+        bg_color_b = edge_judge(bg_color_b,255,'背景颜色蓝：')
+        break
+    except :
+        j=0
+while True:
+    try:
+        num=int(input('选择保留弹幕数量(仅支持1~8)：'))
+        num=edge_judge(num,8,'选择保留弹幕数量(仅支持1~8)：')
+        break
+    except :
+        j=0
+WordType = input(r'选择字体（查看方式 c:\windows\fonts：')
+bg_color = [bg_color_r,bg_color_g,bg_color_b]
+pygame.init()
+screen = pygame.display.set_mode((s_x, s_y))
+clock = pygame.time.Clock()
+clock.tick(30)
+pygame.display.set_caption('弹幕基')
+k='' #刷新检测标准
+tick = int(input('请输入动画完成帧数')) #动画帧数控制
+Tick = 0 #动画循环计数
+# 输出设置模块
+word_type = pygame.font.SysFont(WordType,size)  # 选择输出字体
+l = int(s_x/ size)  # 长度检测
+v = 2*(size * 1.5)/tick
+print('已经开始运行')
+while True:
+    #爬取弹幕模块
+    response=requests.post(url=url,headers=headers,data=data)
+    dic_data=response.json()
+    b=[item['text'] for item in dic_data['data']['room']]
+    screen.fill(bg_color)
+    try:
+        j=b[7]
+    except IndexError:
+        b=['0','1','2','3','4','5','6','7']
+    #刷新检测
+    if k!=b[1]:
+        while Tick <= tick:
+            screen.fill(bg_color)
+            i=0
+            n=-2
+            if num>0:
+                i,n=move(i,n,v,Tick)
+            if num>1:
+                i,n=move(i,n,v,Tick)
+            if num>2:
+                i,n=move(i,n,v,Tick)
+            if num>3:
+                i,n=move(i,n,v,Tick)
+            if num>4:
+                i,n=move(i,n,v,Tick)
+            if num>5:
+                i,n=move(i,n,v,Tick)
+            if num>6:
+                i,n=move(i,n,v,Tick)
+            if num>7:
+                i,n=move(i,n,v,Tick)
+            Tick+=1
+            pygame.display.update()
+            clock.tick(30)
+        k=b[1]
+        Tick = 0
+    else:
+        n = 0  # 高度计数
+        i = 1  # 弹幕计数
+        #输出模块
+        if num>0:
+            i,n=judge(i,n)
+        if num>1:
+            i, n = judge(i, n)
+        if num>2:
+            i, n = judge(i, n)
+        if num>3:
+            i, n = judge(i, n)
+        if num>4:
+            i, n = judge(i, n)
+        if num>5:
+            i, n = judge(i, n)
+        if num>6:
+            i, n = judge(i, n)
+        if num>7:
+            i, n = judge(i, n)
+
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        pygame.display.update()
+        clock.tick(1)
