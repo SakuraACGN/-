@@ -33,6 +33,10 @@ class RunBarrage:
         self.standard = ''
         print('初始化完成')
 
+    def run(self):
+        while True:
+            self._get_barrage()
+
     def _check_valid(self):
         """
         检测配置参数是否合法
@@ -76,7 +80,7 @@ class RunBarrage:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
-                    sys.exit()
+                    sys.exit(0)
             pygame.display.update()
             self.clock.tick(1)
 
