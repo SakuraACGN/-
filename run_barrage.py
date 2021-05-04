@@ -15,7 +15,6 @@ class RunBarrage:
         self._check_valid()
 
         pygame.init()
-        self.response = requests.post(url=Config.url, headers=Config.headers, data=Config.data)
 
         self.screen = pygame.display.set_mode(Config.screen_size)
         self.clock = pygame.time.Clock()
@@ -28,7 +27,7 @@ class RunBarrage:
         self.font = pygame.font.SysFont(Config.font, Config.font_size)
         self.screen.fill(Config.background_color)
         # 长度检测
-        self.word_length = int(Config.screen_size(0) / Config.font_size)
+        self.word_length = int(Config.screen_size[0] / Config.font_size)
         self.v = 2 * (Config.font_size * 1.5) / Config.end_frame
         self.standard = ''
         print('初始化完成')
@@ -54,27 +53,27 @@ class RunBarrage:
         """
         原来代码while true里的东西，运行一个获取代码输出的过程？
         """
-        response_dict = self.response.json()
+        response = requests.post(url=Config.url, headers=Config.headers, data=Config.data)
+        response_dict = response.json()
         text_dict = [item['text'] for item in response_dict['data']['room']]
         if len(text_dict) < 7:
             text_dict = ['0', '1', '2', '3', '4', '5', '6', '7']
-        # 弹幕计数
-        barrage_count = 0
-        # 高度计数
-        barrage_height = 1
-        if self.standard != text_dict[0]:
+
+        if self.standard != text_dict[1]:
             while self.frame <= Config.end_frame:
+                barrage_count = 0
                 barrage_height = -2
-                for index in range(1, Config.barrage_remain_num):
-                    barrage_count, barrage_height = self._move(barrage_count, barrage_height, self.frame)
+                for index in range(1, Config.barrage_remain_num + 1):
+                    barrage_count, barrage_height = self._move(barrage_count, barrage_height, text_dict, self.frame)
                 self.frame += 1
                 pygame.display.update()
                 self.clock.tick(Config.frame_rate)
             self.standard = text_dict[1]
             self.frame = 0
         else:
+            barrage_height = 0
             barrage_count = 1
-            for index in range(1, Config.barrage_remain_num):
+            for index in range(1, Config.barrage_remain_num + 1):
                 barrage_count, barrage_height = self._judge(barrage_count, barrage_height, text_dict)
 
             for event in pygame.event.get():
@@ -126,7 +125,7 @@ class RunBarrage:
         :return: barrage_weight ++, barrage_height ++ 不要用return做+1了，浪费系统资源
         """
         m = 0
-        w_n = len(text_dict[-barrage_count - 1])
+        w_n = len(text_dict[-barrage_count-1])
         if w_n < self.word_length:
             m, barrage_height = self._put_out_2(m, barrage_height, barrage_count, text_dict, frame)
         elif w_n < 2 * self.word_length:
